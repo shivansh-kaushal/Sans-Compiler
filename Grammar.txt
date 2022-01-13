@@ -1,0 +1,49 @@
+statements          : NewLine* statement(NewLine + statement)* NewLine*
+
+statement           : KEYWORD:'यच्छ' expr?
+                    : KEYWORD:'विघ्नः'
+                    : KEYWORD:'अनुवर्तते'
+                    : expr
+
+expr                : IDENTIFIER EQU expr
+                    : comp-expr((KEYWORD:'वा'|KEYWORD:'च') comp-expr)*
+
+comp_expr           : (KEYWORD:'न'| NOT) comp-expr
+                    : arith-expr ((ISEQ|ISNEQ|ISG|ISL|ISGEQ|ISLEQ|RSHIFT|LSHIFT|XOR) arith-expr)*
+
+arith_expr          : term ((PLUS|MINUS) term)*
+
+term                : factor ((MUL|DIV|MOD) factor)*
+
+factor              : (PLUS|MINUS) factor
+                    : power
+
+power               : factorial (POW factor)*
+
+factorial           : call (FACTORIAL)
+
+call                : access (LPAREN (expr (COMMA expr)*)? RPAREN)?
+
+access              : IDENTIFIER LSQUARE expr RSQUARE
+                    : atom
+
+atom                : INT|FLOAT|STRING|IDENTIFIER
+                    : LPAREN expr RPAREN
+                    : list_expr
+                    : if_expr
+                    : while_expr
+                    : func_def
+
+list_expr           : LSQUARE (expr (COMMA expr)*)? RSQUARE
+
+dict_expr           : LCURL (expr THEN expr (COMMA expr THEN expr)*)? RCURL
+
+if_expr             : KEYWORD:'यदि' expr LCURL statements RCURL
+                      (KEYWORD:'नोचेत्' expr LCURL statements RCURL)*
+                      (KEYWORD:'चेत्' LCURL statements RCURL)?
+
+while_expr          : KEYWORD:'यावद्' expr LCURL statements RCURL
+
+for -expr           : KEYWORD: 'प्रति' conditons expr LCURL statements RCURL
+
+func_def            : KEYWORD:'कार्य' IDENTIFIER? LPAREN (IDENTIFIER (COMMA IDENTIFIER)*)? RPAREN LCURL statements RCURL
